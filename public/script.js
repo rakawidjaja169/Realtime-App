@@ -51,8 +51,8 @@ socket.on('start-round', () => {
   startRound();
 })
 
-socket.on('keyIsPressed', (data) => {
-  moveObject(data.leftPaddleX, data.leftPaddleY);
+socket.on('keyIsPressed', pos => {
+  moveObject(pos);
 });
 
 socket.on('countdown', timeleft => {
@@ -92,9 +92,12 @@ function endRound() {
   document.getElementById("leaderboard").innerHTML = player + " " + player1Score;
 }
 
-function moveObject(offX, offY) {
-  leftPaddleX = offX;
-  leftPaddleY = offY;
+function moveObject(pos) {
+  if(pos == "true") {
+    leftPaddleX = 200;
+  } else {
+    leftPaddleX = 700;
+  }
 }
 
 function countdown(timeleft) {
@@ -120,16 +123,7 @@ function init() {
       else if(e.keyCode==38) {leftPaddleY-=10;} //up arrow
       else if(e.keyCode==40) {leftPaddleY+=10;} //down arrow
 
-      if(pos == "true") {
-        leftPaddleX = 200;
-      } else {
-        leftPaddleX = 700;
-      }
-
-      socket.emit('keyIsPressed', roomName, {
-        leftPaddleX,
-        leftPaddleY
-      });
+      socket.emit('keyIsPressed', roomName, pos);
     }
   );
 }

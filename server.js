@@ -56,8 +56,8 @@ io.on('connection', socket => {
     io.to(room).emit('start-round');
   }) 
 
-  socket.on('keyIsPressed', (room, data) => {
-    socket.to(room).broadcast.emit('keyIsPressed', data);
+  socket.on('keyIsPressed', (room, pos) => {
+    io.to(room).emit('keyIsPressed', pos);
   });
 
   socket.on('giveScore', (room, score) => {

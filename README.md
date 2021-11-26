@@ -1,3 +1,3 @@
 # Realtime-App
 
-run npm start
+run 'npm start'

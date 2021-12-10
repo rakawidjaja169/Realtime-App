@@ -1,0 +1,529 @@
+{
+	"openapi": "3.0.1",
+	"securityDefinition": {
+		"bearerAuth": {
+			"type": "apiKey",
+			"in": "header",
+			"name": "Authorization",
+			"description": "Enter your bearer token in the format **Bearer %ly;token>**"
+		}
+	},
+	"security": {
+		"bearerAuth": []
+	},
+	"info": {
+		"title": "Stadious",
+		"description": "API for Stadious",
+		"version": "1.0.0"
+	},
+	"servers": [
+		{
+			"url": "https://mighty-basin-41297.herokuapp.com",
+			"description": "Heroku Deployment"
+		}
+	],
+	"tags": [
+		{
+			"name": "Auth",
+			"description": "Auth"
+		},
+		{
+			"name": "Question Set",
+			"description": "Question Set"
+		},
+		{
+			"name": "Question",
+			"description": "Question"
+		},
+		{
+			"name": "History",
+			"description": "Player History"
+		}
+	],
+	"paths": {
+		"/api/auth/register": {
+			"post": {
+				"tags": ["Auth"],
+				"summary": "Create a new user",
+				"description": "Use to Register User",
+				"consumes": "application/json",
+				"requestBody": {
+					"content": {
+						"application/json": {
+							"schema": {
+								"type": "object",
+								"properties": {
+									"name": {
+										"type": "string"
+									},
+									"email": {
+										"type": "string"
+									},
+									"password": {
+										"type": "string"
+									}
+								}
+							}
+						}
+					}
+				},
+				"responses": {
+					"200": {
+						"description": "A Successful Response"
+					},
+					"400": {
+						"description": "An Error Response"
+					}
+				}
+			}
+		},
+		"/api/auth/login": {
+			"post": {
+				"tags": ["Auth"],
+				"summary": "Login user",
+				"description": "Use to Login User",
+				"consumes": "application/json",
+				"requestBody": {
+					"content": {
+						"application/json": {
+							"schema": {
+								"type": "object",
+								"properties": {
+									"email": {
+										"type": "string"
+									},
+									"password": {
+										"type": "string"
+									}
+								}
+							}
+						}
+					}
+				},
+				"responses": {
+					"200": {
+						"description": "A Successful Response"
+					},
+					"400": {
+						"description": "An Error Response"
+					}
+				}
+			}
+		},
+		"/api/auth/logout": {
+			"get": {
+				"tags": ["Auth"],
+				"summary": "Logout user",
+				"description": "Use to Log Out User",
+				"responses": {
+					"200": {
+						"description": "A Successful Response"
+					},
+					"400": {
+						"description": "An Error Response"
+					}
+				}
+			}
+		},
+		"/api/auth/view/me": {
+			"get": {
+				"tags": ["Auth"],
+				"summary": "View User (self)",
+				"description": "Use to View Current User (self)",
+				"security": {
+					"bearerAuth": []
+				},
+				"responses": {
+					"200": {
+						"description": "A Successful Response"
+					},
+					"400": {
+						"description": "An Error Response"
+					}
+				}
+			}
+		},
+		"/api/auth/view/users": {
+			"get": {
+				"tags": ["Auth"],
+				"summary": "View Other Users",
+				"description": "Use to View Other Users",
+				"parameters": [
+					{
+						"name": "_id",
+						"in": "query",
+						"type": "ObjectId",
+						"required": true
+					}
+				],
+				"responses": {
+					"200": {
+						"description": "A Successful Response"
+					},
+					"400": {
+						"description": "An Error Response"
+					}
+				}
+			}
+		},
+		"/api/questionset/add": {
+			"post": {
+				"tags": ["Question Set"],
+				"summary": "Add Question Set",
+				"description": "Use to Add Question Set",
+				"consumes": "multipart/form-data",
+				"requestBody": {
+					"content": {
+						"multipart/form-data": {
+							"schema": {
+								"type": "object",
+								"properties": {
+									"questionSet": {
+										"type": "string"
+									},
+									"theme": {
+										"type": "string"
+									},
+									"visible": {
+										"type": "string"
+									},
+									"totalQuestion": {
+										"type": "number"
+									},
+									"questionSetImage": {
+										"type": "string",
+										"format": "binary"
+									}
+								}
+							}
+						}
+					}
+				},
+				"responses": {
+					"200": {
+						"description": "A Successful Response"
+					},
+					"400": {
+						"description": "An Error Response"
+					}
+				}
+			}
+		},
+		"/api/questionset/edit": {
+			"put": {
+				"tags": ["Question Set"],
+				"summary": "Edit Question Set",
+				"description": "Use to Edit Question Set and Question",
+				"consumes": "multipart/form-data",
+				"requestBody": {
+					"content": {
+						"multipart/form-data": {
+							"schema": {
+								"type": "object",
+								"properties": {
+									"questionset": {
+										"type": "string"
+									},
+									"theme": {
+										"type": "string"
+									},
+									"visible": {
+										"type": "string"
+									},
+									"totalQuestion": {
+										"type": "number"
+									},
+									"questionSetImage": {
+										"type": "string",
+										"format": "binary"
+									}
+								}
+							}
+						}
+					}
+				},
+				"responses": {
+					"200": {
+						"description": "A Successful Response"
+					},
+					"400": {
+						"description": "An Error Response"
+					}
+				}
+			}
+		},
+		"/api/questionset/delete": {
+			"delete": {
+				"tags": ["Question Set"],
+				"summary": "Delete Question Set",
+				"description": "Use to Delete Question Set and Question",
+				"consumes": "application/json",
+				"requestBody": {
+					"content": {
+						"application/json": {
+							"schema": {
+								"type": "object",
+								"properties": {
+									"questionset": {
+										"type": "string"
+									}
+								}
+							}
+						}
+					}
+				},
+				"responses": {
+					"200": {
+						"description": "A Successful Response"
+					},
+					"400": {
+						"description": "An Error Response"
+					}
+				}
+			}
+		},
+		"/api/questionset/view": {
+			"get": {
+				"tags": ["Question Set"],
+				"summary": "View Question Set",
+				"description": "Use to View Question Set",
+				"parameters": [
+					{
+						"name": "questionSet",
+						"in": "query",
+						"type": "String",
+						"required": true
+					}
+				],
+				"security": {
+					"bearerAuth": []
+				},
+				"responses": {
+					"200": {
+						"description": "A Successful Response"
+					},
+					"400": {
+						"description": "An Error Response"
+					}
+				}
+			}
+		},
+		"/api/question/add": {
+			"post": {
+				"tags": ["Question"],
+				"summary": "Add Question",
+				"description": "Use to Add Question",
+				"consumes": "multipart/form-data",
+				"requestBody": {
+					"content": {
+						"multipart/form-data": {
+							"schema": {
+								"type": "object",
+								"properties": {
+									"questionSet": {
+										"type": "string"
+									},
+									"number": {
+										"type": "number"
+									},
+									"question": {
+										"type": "string"
+									},
+									"answer": {
+										"type": "string"
+									},
+									"timeLimit": {
+										"type": "number"
+									},
+									"questionImage": {
+										"type": "string",
+										"format": "binary"
+									}
+								}
+							}
+						}
+					}
+				},
+				"responses": {
+					"200": {
+						"description": "A Successful Response"
+					},
+					"400": {
+						"description": "An Error Response"
+					}
+				}
+			}
+		},
+		"/api/question/edit": {
+			"put": {
+				"tags": ["Question"],
+				"summary": "Edit Question",
+				"description": "Use to Edit Question",
+				"consumes": "multipart/form-data",
+				"requestBody": {
+					"content": {
+						"multipart/form-data": {
+							"schema": {
+								"type": "object",
+								"properties": {
+									"questionset": {
+										"type": "string"
+									},
+									"number": {
+										"type": "number"
+									},
+									"question": {
+										"type": "string"
+									},
+									"answer": {
+										"type": "string"
+									},
+									"timeLimit": {
+										"type": "number"
+									},
+									"questionImage": {
+										"type": "string",
+										"format": "binary"
+									}
+								}
+							}
+						}
+					}
+				},
+				"responses": {
+					"200": {
+						"description": "A Successful Response"
+					},
+					"400": {
+						"description": "An Error Response"
+					}
+				}
+			}
+		},
+		"/api/question/delete": {
+			"delete": {
+				"tags": ["Question"],
+				"summary": "Delete Question",
+				"description": "Use to Delete Question",
+				"consumes": "application/json",
+				"requestBody": {
+					"content": {
+						"application/json": {
+							"schema": {
+								"type": "object",
+								"properties": {
+									"questionset": {
+										"type": "string"
+									},
+									"number": {
+										"type": "number"
+									}
+								}
+							}
+						}
+					}
+				},
+				"responses": {
+					"200": {
+						"description": "A Successful Response"
+					},
+					"400": {
+						"description": "An Error Response"
+					}
+				}
+			}
+		},
+		"/api/question/view": {
+			"get": {
+				"tags": ["Question"],
+				"summary": "View Question",
+				"description": "Use to View Question",
+				"consumes": "application/json",
+				"requestBody": {
+					"content": {
+						"application/json": {
+							"schema": {
+								"type": "object",
+								"properties": {
+									"questionset": {
+										"type": "string"
+									}
+								}
+							}
+						}
+					}
+				},
+				"responses": {
+					"200": {
+						"description": "A Successful Response"
+					},
+					"400": {
+						"description": "An Error Response"
+					}
+				}
+			}
+		},
+		"/api/history/add": {
+			"post": {
+				"tags": ["History"],
+				"summary": "Add Player's Gameplay History",
+				"description": "Use to Add Player's Gameplay History",
+				"consumes": "application/json",
+				"requestBody": {
+					"content": {
+						"application/json": {
+							"schema": {
+								"type": "object",
+								"properties": {
+									"rank": {
+										"type": "number"
+									},
+									"streak": {
+										"type": "number"
+									},
+									"point": {
+										"type": "number"
+									}
+								}
+							}
+						}
+					}
+				},
+				"responses": {
+					"200": {
+						"description": "A Successful Response"
+					},
+					"400": {
+						"description": "An Error Response"
+					}
+				}
+			}
+		},
+		"/api/history/view": {
+			"get": {
+				"tags": ["History"],
+				"summary": "View Player's Gameplay History",
+				"description": "Use to Player's Gameplay History",
+				"consumes": "application/json",
+				"requestBody": {
+					"content": {
+						"application/json": {
+							"schema": {
+								"type": "object",
+								"properties": {}
+							}
+						}
+					}
+				},
+				"responses": {
+					"200": {
+						"description": "A Successful Response"
+					},
+					"400": {
+						"description": "An Error Response"
+					}
+				}
+			}
+		}
+	}
+}

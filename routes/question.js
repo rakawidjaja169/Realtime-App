@@ -153,7 +153,25 @@ router.delete("/delete", async (req, res) => {
 	res.status(200).json("Question is Deleted");
 });
 
-//View Question
+//View All Question
+router.get("/all/view", async (req, res) => {
+	//Get the Author Email
+	const token = req.cookies.jwt;
+	const decoded = jwt.verify(token, process.env.TOKEN_SECRET);
+	let user = await User.findById(decoded._id);
+
+	//View the Question
+	const question = await Question.find({
+		questionSetID: req.query.questionSetID,
+		author: user._id
+	});
+
+	//Error log nya masih salahhh
+	if (!question) return res.status(400).json("Question Set does not exist!");
+	res.status(200).json(question);
+});
+
+//View Specific Question
 router.get("/view", async (req, res) => {
 	//Get the Author Email
 	const token = req.cookies.jwt;

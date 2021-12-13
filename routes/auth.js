@@ -67,9 +67,13 @@ router.post("/login", async (req, res) => {
 
 	//Create a Token
 	const token = jwt.sign({ _id: user._id }, process.env.TOKEN_SECRET);
-	//res.header('auth-token', token);
+	const tokenString = token.toString();
+
+	const returnToken = {
+		token: tokenString,
+	};
 	res.cookie("jwt", token, { maxAge: maxAge });
-	res.status(200).json(token);
+	res.status(200).json(returnToken);
 });
 
 //Log Out
@@ -80,41 +84,6 @@ router.get("/logout", async (req, res) => {
 
 	//Redirect to Home Page
 	//res.redirect('/');
-});
-
-router.get("/view/me", async (req, res) => {
-	const bearerHeader = req.headers["authorization"];
-	const bearer = typeof bearerHeader !== "undefined" && bearerHeader.split(" ");
-	const token = bearer && bearer[1];
-	try {
-		const decoded = jwt.verify(token, process.env.TOKEN_SECRET);
-		let user = await User.findById(decoded._id);
-		const meResult = {
-			id: user._id,
-			name: user.name,
-		};
-		res.status(200).json(meResult);
-	} catch {
-		res.status(400).json("User not found!");
-	}
-});
-
-router.get("/view/users", async (req, res) => {
-	req.headers["authorization"];
-
-	try {
-		let user = await User.findById({
-			_id: req.query._id,
-		});
-
-		const userResult = {
-			name: user.name,
-		};
-
-		res.status(200).json(userResult);
-	} catch {
-		res.status(400).json("User not found!");
-	}
 });
 
 module.exports = router;

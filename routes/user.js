@@ -2,16 +2,6 @@ const router = require("express").Router();
 const jwt = require("jsonwebtoken");
 const User = require("../model/User");
 
-router.get("/view", async (req, res) => {
-	//Get the Author Email
-	const token = req.cookies.jwt;
-	const decoded = jwt.verify(token, process.env.TOKEN_SECRET);
-	let user = await User.findById(decoded._id);
-
-	if (!user) return res.status(400).json("User does not exist!");
-	res.status(200).json(user);
-});
-
 router.get("/view/me", async (req, res) => {
 	const bearerHeader = req.headers["authorization"];
 	const bearer = typeof bearerHeader !== "undefined" && bearerHeader.split(" ");
@@ -54,8 +44,6 @@ router.post("/view/me/edit", async (req, res) => {
 });
 
 router.get("/view/users", async (req, res) => {
-	req.headers["authorization"];
-
 	try {
 		let user = await User.findById({
 			_id: req.query._id,

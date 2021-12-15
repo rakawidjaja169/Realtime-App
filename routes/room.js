@@ -16,22 +16,25 @@ router.post("/add", async (req, res) => {
 	const { error } = roomValidation(req.body);
 	if (error) return res.status(400).json(error.details[0].message);
 
-    //Checking Room Exist
+	//Checking Room Exist
 	const roomExist = await Room.findOne({
-		"$or": [{
-			user: user._id,
-			friend: req.body.friend
-		}, {
-			user: req.body.friend,
-			friend: user._id
-		}]
+		$or: [
+			{
+				user: user._id,
+				friend: req.body.friend,
+			},
+			{
+				user: req.body.friend,
+				friend: user._id,
+			},
+		],
 	});
 	if (roomExist) return res.status(400).json("Room is already exist");
 
 	//Create New Room
 	const room = new Room({
 		user: user._id,
-		friend: req.body.friend
+		friend: req.body.friend,
 	});
 	try {
 		const savedRoom = await room.save();
@@ -50,13 +53,13 @@ router.delete("/remove", async (req, res) => {
 
 	//Checking Room Exist
 	const room = await Room.findOne({
-		roomID: req.body.roomID
+		roomID: req.body.roomID,
 	});
 	if (!room) return res.status(400).json("Room doesn't exist");
 
 	//Delete Room
 	const myquery = {
-		roomID: req.body.roomID
+		roomID: req.body.roomID,
 	};
 
 	const deleteRoom = await Room.deleteOne(myquery);
@@ -75,7 +78,7 @@ router.get("/view", async (req, res) => {
 
 	//View the Room
 	const room = await Room.findOne({
-		roomID: req.body.roomID
+		roomID: req.body.roomID,
 	});
 
 	//Error log nya masih salahhh

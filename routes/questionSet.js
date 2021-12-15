@@ -3,49 +3,13 @@ const QuestionSet = require("../model/QuestionSet");
 const Question = require("../model/Question");
 const User = require("../model/User");
 //const verify = require('../middleware/verifyToken');
-const { questionSetValidation } = require("../validation/validation");
+const {
+	questionSetValidation,
+	questionSetEditValidation,
+} = require("../validation/validation");
 const jwt = require("jsonwebtoken");
-const multer = require("multer");
-
-const storage = multer.diskStorage({
-	destination: function (req, file, cb) {
-		cb(null, "./uploads/");
-	},
-	filename: function (req, file, cb) {
-		cb(null, Date.now() + file.originalname);
-	},
-});
-
-const fileFilter = (req, file, cb) => {
-	//Reject a File
-	if (
-		file.mimetype === "image/jpeg" ||
-		file.mimetype === "image/png" ||
-		file.mimetype === "image/jpg"
-	) {
-		cb(null, true);
-	} else {
-		cb(null, false);
-	}
-};
-
-const upload = multer({
-	storage: storage,
-	limits: {
-		//5 MB
-		fileSize: 1024 * 1024 * 5,
-	},
-	fileFilter: fileFilter,
-});
-
-// router.get('/', verify, (req, res) => {
-//     res.json({
-//         posts: {
-//             title: 'My First Question Set',
-//             description: 'Question Set for Private'
-//         }
-//     });
-// });
+const upload = require("../utils/multer");
+const cloudinary = require("../utils/cloudinary");
 
 //Add Question Set
 router.post("/add", upload.single("questionSetImage"), async (req, res) => {
@@ -57,25 +21,21 @@ router.post("/add", upload.single("questionSetImage"), async (req, res) => {
 	//Validate Data
 	const { error } = questionSetValidation(req.body);
 	if (error) return res.status(400).json(error.details[0].message);
+	const imageUpload = await cloudinary.uploader.upload(req.file.path);
 
 	//Create New Question
-	const questionSet = new QuestionSet({
+	const questionSet = await new QuestionSet({
 		questionSet: req.body.questionSet,
 		theme: req.body.theme,
 		visible: req.body.visible,
 		totalQuestion: req.body.totalQuestion,
 		author: user._id,
-		questionSetImage: req.file.path,
+		questionSetImage: imageUpload.secure_url,
+		cloudinaryID: imageUpload.public_id,
 	});
-	const checkQuestionSet = QuestionSet.findOne({
-		questionSet: req.body.questionSet,
-	});
-	if (checkQuestionSet) {
-		return res.status(400).json("Question Set already exists!");
-	}
 	try {
-		const savedQuestionSet = await questionSet.save();
-		res.status(200).json(savedQuestionSet);
+		const saveQuestionSet = await questionSet.save();
+		res.status(200).json(saveQuestionSet);
 	} catch (err) {
 		res.status(400).json(err);
 	}
@@ -89,24 +49,28 @@ router.put("/edit", upload.single("questionSetImage"), async (req, res) => {
 	let user = await User.findById(decoded._id);
 
 	//Validate Data
-	const { error } = questionSetValidation(req.body);
+	const { error } = questionSetEditValidation(req.body);
 	if (error) return res.status(400).json(error.details[0].message);
 
 	//Checking Question Set Exist
-	const questionSet = await QuestionSet.findOne({
-		questionSet: req.body.questionSet,
+	const questionSet = await QuestionSet.findById({
+		_id: req.body._id,
 	});
-	if (questionSet) return res.status(400).json("Question Set does not exist");
+	if (!questionSet) return res.status(400).json("Question Set does not exist");
 
 	//Update Question Set
 	const myquery = { questionSet: req.body.questionSet, author: user._id };
+
+	const imageUpload = await cloudinary.uploader.upload(req.file.path);
+
 	const newvalues = {
 		$set: {
 			questionSet: req.body.questionSet,
 			theme: req.body.theme,
 			visible: req.body.visible,
 			totalQuestion: req.body.totalQuestion,
-			questionSetImage: req.file.path,
+			questionSetImage: imageUpload.secure_url,
+			cloudinaryID: imageUpload.public_id,
 		},
 	};
 	const newvaluesQuestion = { $set: { questionSet: req.body.questionSetNew } };
@@ -156,13 +120,13 @@ router.get("/view", async (req, res) => {
 	let user = await User.findById(decoded._id);
 
 	//View the Question Set
-	const questionSet = await QuestionSet.findOne({
-		questionSet: req.query.questionSet,
+	const questionSet = await QuestionSet.findById({
+		_id: req.body._id,
 		author: user._id,
 	});
 
 	//Error log nya masih salahhh
-	if (!questionSet) return res.status(400).json("Question Set does not exist!");
+	if (!questionSet) return res.status(400).json("Error deleting Question Set!");
 	res.status(200).json(questionSet);
 });
 

@@ -5,38 +5,40 @@ const User = require("../model/User");
 //const verify = require('../middleware/verifyToken');
 const { questionValidation } = require("../validation/validation");
 const jwt = require("jsonwebtoken");
-const multer = require("multer");
+// const multer = require("multer");
+const cloudinary = require("../utils/cloudinary");
+const upload = require("../utils/multer");
 
-const storage = multer.diskStorage({
-	destination: function (req, file, cb) {
-		cb(null, "./uploads/");
-	},
-	filename: function (req, file, cb) {
-		cb(null, Date.now() + file.originalname);
-	},
-});
+// const storage = multer.diskStorage({
+// 	destination: function (req, file, cb) {
+// 		cb(null, "./uploads/");
+// 	},
+// 	filename: function (req, file, cb) {
+// 		cb(null, Date.now() + file.originalname);
+// 	},
+// });
 
-const fileFilter = (req, file, cb) => {
-	//Reject a File
-	if (
-		file.mimetype === "image/jpeg" ||
-		file.mimetype === "image/png" ||
-		file.mimetype === "image/jpg"
-	) {
-		cb(null, true);
-	} else {
-		cb(null, false);
-	}
-};
+// const fileFilter = (req, file, cb) => {
+// 	//Reject a File
+// 	if (
+// 		file.mimetype === "image/jpeg" ||
+// 		file.mimetype === "image/png" ||
+// 		file.mimetype === "image/jpg"
+// 	) {
+// 		cb(null, true);
+// 	} else {
+// 		cb(null, false);
+// 	}
+// };
 
-const upload = multer({
-	storage: storage,
-	limits: {
-		//5 MB
-		fileSize: 1024 * 1024 * 5,
-	},
-	fileFilter: fileFilter,
-});
+// const upload = multer({
+// 	storage: storage,
+// 	limits: {
+// 		//5 MB
+// 		fileSize: 1024 * 1024 * 5,
+// 	},
+// 	fileFilter: fileFilter,
+// });
 
 //Add Question
 router.post("/add", upload.single("questionImage"), async (req, res) => {
@@ -52,14 +54,17 @@ router.post("/add", upload.single("questionImage"), async (req, res) => {
 	if (error) return res.status(400).json(error.details[0].message);
 
 	//Create New Question
-	const question = new Question({
+	const imageUpload = await cloudinary.uploader.upload(req.file.path);
+
+	const question = await new Question({
 		questionSetID: req.body.questionSetID,
 		number: req.body.number,
 		question: req.body.question,
 		answer: req.body.answer,
 		timeLimit: req.body.timeLimit,
 		author: user._id,
-		questionImage: req.file.path,
+		questionImage: imageUpload.secure_url,
+		cloudinaryID: imageUpload.public_id,
 	});
 	try {
 		const questionSet = await QuestionSet.findById({
@@ -100,7 +105,7 @@ router.put("/edit", upload.single("questionImage"), async (req, res) => {
 	if (error) return res.status(400).json(error.details[0].message);
 
 	//Checking Question Exist
-	const question = await Question.findOne({
+	const question = await QuestionSet.findById({
 		_id: req.body.questionSetID,
 	});
 	if (!question) return res.status(400).json("Question Set is not exist");
@@ -110,12 +115,16 @@ router.put("/edit", upload.single("questionImage"), async (req, res) => {
 		number: req.body.number,
 		author: user._id,
 	};
+
+	const imageUpload = await cloudinary.uploader.upload(req.file.path);
+
 	const newvalues = {
 		$set: {
 			question: req.body.question,
 			answer: req.body.answer,
 			timeLimit: req.body.timeLimit,
-			questionImage: req.file.path,
+			questionImage: imageUpload.secure_url,
+			cloudinaryID: imageUpload.public_id,
 		},
 	};
 
@@ -135,7 +144,7 @@ router.delete("/delete", async (req, res) => {
 	let user = await User.findById(decoded._id);
 
 	//Checking Question Exist
-	const question = await Question.findOne({
+	const question = await QuestionSet.findById({
 		questionSetID: req.body.questionSetID,
 	});
 	if (!question) return res.status(400).json("Question Set is not exist");
@@ -163,7 +172,7 @@ router.get("/all/view", async (req, res) => {
 	//View the Question
 	const question = await Question.find({
 		questionSetID: req.query.questionSetID,
-		author: user._id
+		author: user._id,
 	});
 
 	//Error log nya masih salahhh

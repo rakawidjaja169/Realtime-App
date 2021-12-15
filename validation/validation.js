@@ -25,7 +25,18 @@ const questionSetValidation = (data) => {
 	const schema = Joi.object({
 		questionSet: Joi.string().min(4).required(),
 		theme: Joi.string().required(),
-		visible: Joi.string().required(),
+		visible: Joi.bool().required(),
+		totalQuestion: Joi.number().required(),
+	});
+	return schema.validate(data);
+};
+
+const questionSetEditValidation = (data) => {
+	const schema = Joi.object({
+		_id: Joi.required(),
+		questionSet: Joi.string().min(4).required(),
+		theme: Joi.string().required(),
+		visible: Joi.bool().required(),
 		totalQuestion: Joi.number().required(),
 	});
 	return schema.validate(data);
@@ -34,6 +45,7 @@ const questionSetValidation = (data) => {
 //Question Validation
 const questionValidation = (data) => {
 	const schema = Joi.object({
+		_id: Joi.string(),
 		questionSetID: Joi.string().required(),
 		number: Joi.number().required(),
 		question: Joi.string().min(8).required(),
@@ -56,7 +68,7 @@ const historyValidation = (data) => {
 //Friend Validation
 const friendValidation = (data) => {
 	const schema = Joi.object({
-		friend: Joi.string().required()
+		friend: Joi.string().required(),
 	});
 	return schema.validate(data);
 };
@@ -66,7 +78,7 @@ const messageValidation = (data) => {
 	const schema = Joi.object({
 		friend: Joi.string().required(),
 		message: Joi.string().required(),
-		roomID: Joi.string().required()
+		roomID: Joi.string().required(),
 	});
 	return schema.validate(data);
 };
@@ -74,7 +86,7 @@ const messageValidation = (data) => {
 //Room Validation
 const roomValidation = (data) => {
 	const schema = Joi.object({
-		friend: Joi.string().required()
+		friend: Joi.string().required(),
 	});
 	return schema.validate(data);
 };
@@ -82,6 +94,7 @@ const roomValidation = (data) => {
 module.exports.registerValidation = registerValidation;
 module.exports.loginValidation = loginValidation;
 module.exports.questionSetValidation = questionSetValidation;
+module.exports.questionSetEditValidation = questionSetEditValidation;
 module.exports.questionValidation = questionValidation;
 module.exports.historyValidation = historyValidation;
 module.exports.friendValidation = friendValidation;

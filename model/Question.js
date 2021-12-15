@@ -33,6 +33,12 @@ const questionSchema = new mongoose.Schema({
 	},
 	questionImage: {
 		type: String,
+		default:
+			"https://res.cloudinary.com/stadious-backend/image/upload/v1639486516/stadious_logo_s0cimx.png",
+	},
+	cloudinaryID: {
+		type: String,
+		default: "stadious_logo_s0cimx",
 	},
 });
 

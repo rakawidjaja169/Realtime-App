@@ -125,7 +125,7 @@
 				}
 			}
 		},
-		"/api/auth/view/me": {
+		"/api/user/view/me": {
 			"get": {
 				"tags": ["Auth"],
 				"summary": "View User (self)",
@@ -143,7 +143,42 @@
 				}
 			}
 		},
-		"/api/auth/view/users": {
+		"/api/auth/view/me/edit": {
+			"post": {
+				"tags": ["Auth"],
+				"summary": "Edit User (self)",
+				"description": "Use to Edit Current User (self)",
+				"security": {
+					"bearerAuth": []
+				},
+				"requestBody": {
+					"content": {
+						"application/json": {
+							"schema": {
+								"type": "object",
+								"properties": {
+									"name": {
+										"type": "string"
+									},
+									"imagePath": {
+										"type": "string"
+									}
+								}
+							}
+						}
+					}
+				},
+				"responses": {
+					"200": {
+						"description": "A Successful Response"
+					},
+					"400": {
+						"description": "An Error Response"
+					}
+				}
+			}
+		},
+		"/api/user/view/users": {
 			"get": {
 				"tags": ["Auth"],
 				"summary": "View Other Users",

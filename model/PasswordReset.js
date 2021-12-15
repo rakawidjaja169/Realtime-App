@@ -1,10 +1,10 @@
 const mongoose = require("mongoose");
 
-const userVerificationSchema = new mongoose.Schema({
+const passwordResetSchema = new mongoose.Schema({
 	userId: {
 		type: String
 	},
-	uniqueString: {
+	resetString: {
 		type: String
 	},
 	createdAt: {
@@ -15,4 +15,4 @@ const userVerificationSchema = new mongoose.Schema({
 	}
 });
 
-module.exports = mongoose.model("UserVerification", userVerificationSchema);
+module.exports = mongoose.model("PasswordReset", passwordResetSchema);

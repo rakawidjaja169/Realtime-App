@@ -27,6 +27,10 @@ const userSchema = new mongoose.Schema({
 		type: String,
 		default: "arts/avatars/1.png",
 	},
+	verified: {
+		type: Boolean,
+		default: false
+	}
 });
 
 module.exports = mongoose.model("User", userSchema);

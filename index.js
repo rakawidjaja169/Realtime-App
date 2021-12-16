@@ -13,6 +13,23 @@ const io = socketio(server);
 const cors = require("cors");
 const User = require("./model/User");
 
+//Google Auth
+const passport = require('passport');
+const session = require('express-session');
+const MongoStore = require('connect-mongo');
+
+// Passport config
+require('./config/passport')(passport);
+
+app.use(
+	session({
+		secret: 'keyboard cat',
+		resave: false,
+		saveUninitialized: false,
+		store: MongoStore.create({ mongoUrl: process.env.DB_CONNECT }),
+	})
+);
+
 //Swagger
 const apiDocumentation = require("./apidocs.json");
 app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(apiDocumentation));
@@ -49,6 +66,10 @@ app.get("/socket", (req, res) => {
 app.use(express.json());
 app.use(cookieParser());
 app.use(express.urlencoded({ extended: true }));
+
+// Passport middleware
+app.use(passport.initialize());
+app.use(passport.session());
 
 // CORS
 app.use(function (req, res, next) {
@@ -174,6 +195,10 @@ app.use("/api/message", requireAuth, messageRoute);
 app.use("/api/room", requireAuth, roomRoute);
 app.use("/api/gameroom", requireAuth, gameRoomRoute);
 app.use("/public", express.static("./public/"));
+
+//Testing Google Auth
+app.use(require("./routes/googleindex"))
+app.use('/auth', require('./routes/googleauth'))
 
 server.listen(process.env.PORT || 3000, () =>
 	console.log("Server Up and Running")

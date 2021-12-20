@@ -49,7 +49,7 @@ router.get("/view", async (req, res) => {
 
 	//View the History
 	const history = await History.findOne({
-		author: user._id,
+		user: user._id,
 	});
 
 	//Error log nya masih salahhh

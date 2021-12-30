@@ -21,8 +21,8 @@ const GoogleUserSchema = new mongoose.Schema({
     type: String,
   },
   email:{
-type:String,
-required: true,
+    type:String,
+    required: true,
   },
   createdAt: {
     type: Date,

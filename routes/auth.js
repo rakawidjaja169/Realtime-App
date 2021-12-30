@@ -14,7 +14,9 @@ const {
 const { response } = require("express");
 const { json } = require("body-parser");
 
-const maxAge = 1000 * 60 * 60 * 24 * 7;
+const maxAge = 1000 * 60 * 60 * 3;
+
+const maxRefresh = 1000 * 60 * 60 * 24 * 365;
 
 //Email Handler
 const nodemailer = require("nodemailer");
@@ -54,8 +56,14 @@ router.post("/register", async (req, res) => {
 	if (error) return res.status(400).json(error.details[0].message);
 
 	//Checking Unique User
-	const emailExist = await User.findOne({ email: req.body.email });
+	const emailExist = await User.findOne({ email: req.body.email, verified: true });
 	if (emailExist) return res.status(400).json("Email already exists");
+
+	//Delete Doubled User
+	const doubledEmail = await User.findOne({ email: req.body.email });
+	if (doubledEmail) {
+		await User.deleteMany({ email: req.body.email });
+	};
 
 	//Hash the Password
 	const salt = await bcrypt.genSalt(10);
@@ -115,13 +123,13 @@ const sendVerificationEmail = ({ _id, email, name }, res) => {
 						.sendMail(mailOptions)
 						.then(() => {
 							//Email send and verification record saved
-							const token = jwt.sign({ _id: _id }, process.env.TOKEN_SECRET);
+							//const token = jwt.sign({ _id: _id }, process.env.TOKEN_SECRET);
 							const registerResponse = {
 								user: {
 									id: _id,
 									name: name,
 								},
-								token: token,
+								//token: token,
 								status: "PENDING",
 								message: "Verification email sent",
 							};
@@ -262,21 +270,55 @@ router.post("/login", async (req, res) => {
 		verified: false });
 	if (userVerified) return res.status(400).json("Email hasn't been verified yet. Check your inbox.");
 
-	//Create a Token
+	//Create a Access Token
 	const token = jwt.sign({ _id: user._id }, process.env.TOKEN_SECRET);
 	const tokenString = token.toString();
 
-	const returnToken = {
-		token: tokenString,
-	};
 	res.cookie("jwt", token, { maxAge: maxAge });
-	res.status(200).json(returnToken);
+
+	//Create a Refresh Token
+	const refreshToken = jwt.sign({ _id: user._id }, process.env.REFRESH_TOKEN_SECRET);
+	const refreshTokenString = refreshToken.toString();
+
+	res.cookie("Refresh Token", refreshToken, { maxAge: maxRefresh });
+
+	res.json({
+		status: "SUCCESS",
+		token: tokenString,
+		refreshToken: refreshTokenString
+	});
+});
+
+//Refresh Token
+router.post("/refreshtoken", (req, res) => {
+	const token = req.body.refreshToken;
+
+	jwt.verify(token, process.env.REFRESH_TOKEN_SECRET, (err, decodedToken) => {
+		if (err) {
+		  console.log(err);
+		} else {
+		  //Create a Access & Refresh Token
+		  const token = jwt.sign({ _id: decodedToken }, process.env.TOKEN_SECRET);
+		  const refToken = jwt.sign({ _id: decodedToken }, process.env.REFRESH_TOKEN_SECRET);
+
+		  res.cookie("jwt", token, { maxAge: maxAge });
+		  res.cookie("Refresh Token", refToken, { maxAge: maxRefresh });
+
+		  res.json({
+			status: "SUCCESS",
+			token: token,
+			refreshToken: refToken
+		});
+		}
+	});
+	
 });
 
 //Log Out
-router.get("/logout", async (req, res) => {
+router.get("/logout", (req, res) => {
 	//Erase Cookies
 	res.clearCookie("jwt");
+	res.clearCookie("Refresh Token");
 	res.status(200).json("Cookie is Deleted");
 
 	//Redirect to Home Page

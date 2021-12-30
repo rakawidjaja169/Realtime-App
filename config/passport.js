@@ -16,12 +16,12 @@ module.exports = function (passport) {
         async (accessToken, refreshToken, profile, done) => {
             //get the user data from google 
             const newUser = {
-            googleId: profile.id,
-            displayName: profile.displayName,
-            firstName: profile.name.givenName,
-            lastName: profile.name.familyName,
-            image: profile.photos[0].value,
-            email: profile.emails[0].value
+                googleId: profile.id,
+                displayName: profile.displayName,
+                firstName: profile.name.givenName,
+                lastName: profile.name.familyName,
+                image: profile.photos[0].value,
+                email: profile.emails[0].value
             }
 
             try {

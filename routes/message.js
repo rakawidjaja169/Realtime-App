@@ -33,18 +33,13 @@ router.post("/add", async (req, res) => {
 
 //Delete Message
 router.delete("/remove", async (req, res) => {
-	//Get the Author Email
-	const token = req.cookies.jwt;
-	const decoded = jwt.verify(token, process.env.TOKEN_SECRET);
-	let user = await User.findById(decoded._id);
-
 	//Checking Friend Exist
 	const message = await Message.findOne({
         messageID: req.body.messageID
 	});
 	if (!message) return res.status(400).json("Message doesn't exist");
 
-	//Delete Friend
+	//Delete Message
 	const myquery = {
 		messageID: req.body.messageID
 	};

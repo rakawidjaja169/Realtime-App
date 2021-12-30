@@ -48,11 +48,10 @@ router.get("/view", async (req, res) => {
 	let user = await User.findById(decoded._id);
 
 	//View the History
-	const history = await History.findOne({
-		author: user._id,
+	const history = await History.find({
+		user: user._id,
 	});
 
-	//Error log nya masih salahhh
 	if (!history) return res.status(400).json("History does not exist!");
 	res.status(200).json(history);
 });

@@ -23,7 +23,7 @@ require('./config/passport')(passport);
 
 app.use(
 	session({
-		secret: 'keyboard cat',
+		secret: process.env.TOKEN_SECRET,
 		resave: false,
 		saveUninitialized: false,
 		store: MongoStore.create({ mongoUrl: process.env.DB_CONNECT }),
@@ -104,7 +104,7 @@ app.use(cors(corsOptions));
 //Create Room with Socket
 app.post("/room", (req, res) => {
 	if (rooms[req.body.room] != null) {
-		return res.redirect('/')
+		return res.redirect('/socket')
 	}
 	rooms[req.body.room] = { users: {} }
 	res.redirect(req.body.room)
@@ -112,9 +112,10 @@ app.post("/room", (req, res) => {
 	io.emit('room-created', req.body.room)
 });
 
+//Join Room with Socket
 app.get("/:room", (req, res) => {
 	if (rooms[req.params.room] == null) {
-		return res.redirect("/");
+		return res.redirect("/socket");
 	}
 	res.render("room", { roomName: req.params.room });
 });

@@ -71,6 +71,17 @@ router.delete("/remove", async (req, res) => {
 	});
 	if (!friend) return res.status(400).json("Friend doesn't exist");
 
+	//Find the Room
+	let room = await Room.findOne({
+		"$or": [{
+			user: user._id,
+			friend: req.body.friend
+		}, {
+			user: req.body.friend,
+			friend: user._id
+		}]
+	});
+
 	//Delete Friend
 	const myquery = {
 		user: user._id,
@@ -78,7 +89,7 @@ router.delete("/remove", async (req, res) => {
 	};
 
 	const deleteFriend = await Friend.deleteOne(myquery);
-	//Error log nya masih salahhh
+	const deleteRoom = await Room.deleteOne({ _id: room._id });
 	if (!deleteFriend) return res.status(400).json("Delete Friend is Error");
 
 	res.status(200).json("Friend is Deleted");
